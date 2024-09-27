@@ -1,9 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Todo } from "../models/Todo";
+import { Todo, TodoState } from "../models/Todo";
 import { v4 as uuidv4 } from "uuid";
+import { fetchTodos } from "./actions";
 
-const initialState: { todos: Todo[] } = {
+const initialState = {
   todos: [],
+  loading: false,
+  error: null,
 };
 
 const todoSlice = createSlice({
@@ -11,23 +14,23 @@ const todoSlice = createSlice({
   initialState,
   reducers: {
     addTodo: {
-      reducer: (state, action: PayloadAction<Todo>) => {
+      reducer: (state: TodoState, action: PayloadAction<Todo>) => {
         state.todos.push(action.payload);
       },
-      prepare: (description: string) => ({
+      prepare: (title: string) => ({
         payload: {
           id: uuidv4(),
-          description,
+          title,
           completed: false,
         } as Todo,
       }),
     },
-    removeTodo(state, action: PayloadAction<string>) {
+    removeTodo(state: TodoState, action: PayloadAction<string>) {
       const index = state.todos.findIndex((todo) => todo.id === action.payload);
       state.todos.splice(index, 1);
     },
     setTodoStatus(
-      state,
+      state: TodoState,
       action: PayloadAction<{ completed: boolean; id: string }>
     ) {
       const index = state.todos.findIndex(
@@ -35,6 +38,21 @@ const todoSlice = createSlice({
       );
       state.todos[index].completed = action.payload.completed;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTodos.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTodos.fulfilled, (state, action) => {
+        state.todos = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTodos.rejected, (state: TodoState, action) => {
+        state.loading = false;
+        state.error = action.error.message as string;
+      });
   },
 });
 

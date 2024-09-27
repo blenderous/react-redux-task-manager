@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./redux/store";
 import { addTodo, removeTodo, setTodoStatus } from "./redux/todoSlice";
 import "./App.css";
 import clsx from "clsx";
 import { Todo } from "./models/Todo";
+import { fetchTodos } from "./redux/actions";
 
 function App() {
   const [todoText, setTodoText] = useState("");
@@ -47,6 +48,10 @@ function App() {
 
   const todoListFiltered = todoList.filter((todo) => filterTodos(todo));
 
+  useEffect(() => {
+    dispatch(fetchTodos());
+  }, [dispatch]);
+
   return (
     <>
       <h1 className="mb-3">Task Manager</h1>
@@ -64,13 +69,13 @@ function App() {
       </section>
       <ul className="list-none max-h-screen overflow-y-auto">
         {todoListFiltered.length > 0 ? (
-          todoListFiltered.map((todo) => (
+          todoListFiltered.map((todo: Todo) => (
             <li
               key={todo.id}
               className="bg-stone-200 dark:bg-stone-800 border-b border-b-stone-400 flex justify-between items-center p-3"
             >
               <p className={clsx("mr-6", { "line-through": todo.completed })}>
-                {todo.description}
+                {todo.title}
               </p>
               <p>
                 <span className="mr-3">

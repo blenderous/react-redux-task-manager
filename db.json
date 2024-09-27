@@ -1,0 +1,6 @@
+{
+  "todos": [
+    { "id": "1", "title": "Go to the market", "done": false },
+    { "id": "2", "title": "Buy some vegetables", "done": false }
+  ]
+}
